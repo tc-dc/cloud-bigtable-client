@@ -20,7 +20,7 @@ limitations under the License.
     <parent>
         <groupId>com.google.cloud.bigtable</groupId>
         <artifactId>bigtable-client-core-parent</artifactId>
-        <version>1.0.0-pre4-SNAPSHOT</version>
+        <version>1.0.0-pre4-twttr2</version>
     </parent>
 
     <artifactId>bigtable-client-core</artifactId>
@@ -183,5 +183,69 @@ limitations under the License.
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>shaded</id>
+            <activation>
+                <property><name>shadeJars</name></property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <shadeTestJar>false</shadeTestJar>
+                                    <shadedArtifactAttached>false</shadedArtifactAttached>
+                                    <createDependencyReducedPom>true</createDependencyReducedPom>
+                                    <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+                                    <transformers>
+                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                    </transformers>
+                                    <artifactSet>
+                                        <includes>
+                                            <include>com.google.cloud.bigtable:bigtable-client-core</include>
+                                            <include>com.google.cloud.bigtable:bigtable-protos</include>
+                                            <include>com.google.api.grpc:grpc-google-common-protos</include>
+                                            <include>com.google.api.grpc:proto-google-common-protos</include>
+                                            <include>com.google.instrumentation:instrumentation-api</include>
+                                            <include>io.opencensus:opencensus-api</include>
+                                            <include>io.grpc:*:*</include>
+                                            <include>io.netty:*:*</include>
+                                        </includes>
+                                    </artifactSet>
+                                    <relocations>
+                                        <!-- Relocate netty, taking care to keep the prefix consistent for native tcnative
+                                          libs. For details see:
+                                            https://github.com/netty/netty/pull/6995
+                                            https://github.com/grpc/grpc-java/pull/2485
+                                        -->
+                                        <relocation>
+                                            <pattern>io.netty</pattern>
+                                            <shadedPattern>com.google.bigtable.repackaged.io.netty</shadedPattern>
+                                        </relocation>
+                                        <relocation>
+                                            <pattern>META-INF/native/libnetty</pattern>
+                                            <shadedPattern>META-INF/native/libcom_google_bigtable_repackaged_netty</shadedPattern>
+                                        </relocation>
+                                        <relocation>
+                                            <pattern>META-INF/native/netty</pattern>
+                                            <shadedPattern>META-INFO/native/com_google_bigtable_repackaged_netty</shadedPattern>
+                                        </relocation>
+                                    </relocations>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
 
