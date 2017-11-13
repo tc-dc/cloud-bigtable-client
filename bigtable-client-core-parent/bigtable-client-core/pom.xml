@@ -20,7 +20,7 @@ limitations under the License.
     <parent>
         <groupId>com.google.cloud.bigtable</groupId>
         <artifactId>bigtable-client-core-parent</artifactId>
-        <version>1.0.0-pre4-SNAPSHOT</version>
+        <version>1.0.0-pre4-twttr3</version>
     </parent>
 
     <artifactId>bigtable-client-core</artifactId>
@@ -138,6 +138,12 @@ limitations under the License.
         <dependency>
             <groupId>io.opencensus</groupId>
             <artifactId>opencensus-contrib-grpc-util</artifactId>
+            <version>${opencensus.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opencensus</groupId>
+            <artifactId>opencensus-api</artifactId>
             <version>${opencensus.version}</version>
         </dependency>
 
