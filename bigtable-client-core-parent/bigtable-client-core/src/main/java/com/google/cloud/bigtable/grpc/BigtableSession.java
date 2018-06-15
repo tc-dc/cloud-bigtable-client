@@ -370,7 +370,7 @@ public class BigtableSession implements Closeable {
     ChannelPool.ChannelFactory channelFactory = new ChannelPool.ChannelFactory() {
       @Override
       public ManagedChannel create() throws IOException {
-        return createNettyChannel(hostString, options, clientInterceptors);
+        return createNettyChannelInternal(hostString, options, clientInterceptors);
       }
     };
     return createChannelPool(channelFactory, count);
@@ -441,6 +441,16 @@ public class BigtableSession implements Closeable {
         }, count);
   }
 
+  protected <T extends ManagedChannelBuilder<T>> ManagedChannelBuilder<T> configureNettyChannel(
+      ManagedChannelBuilder<T> builder,
+      BigtableOptions options, ClientInterceptor ... interceptors) {
+    return builder
+        .idleTimeout(Long.MAX_VALUE, TimeUnit.SECONDS)
+        .maxInboundMessageSize(MAX_MESSAGE_SIZE)
+        .userAgent(BigtableVersionInfo.CORE_UESR_AGENT + "," + options.getUserAgent())
+        .intercept(interceptors);
+  }
+
   /**
    * <p>createNettyChannel.</p>
    *
@@ -468,6 +478,30 @@ public class BigtableSession implements Closeable {
         .intercept(interceptors)
         .build();
   }
+
+  /**
+   * <p>createNettyChannel.</p>
+   *
+   * @param host a {@link String} object.
+   * @param options a {@link BigtableOptions} object.
+   * @return a {@link ManagedChannel} object.
+   * @throws SSLException if any.
+   */
+  protected ManagedChannel createNettyChannelInternal(String host,
+      BigtableOptions options, ClientInterceptor ... interceptors) throws SSLException {
+
+    // Ideally, this should be ManagedChannelBuilder.forAddress(...) rather than an explicit
+    // call to NettyChannelBuilder.  Unfortunately, that doesn't work for shaded artifacts.
+    ManagedChannelBuilder<?> builder = ManagedChannelBuilder
+        .forAddress(host, options.getPort());
+
+    if (options.usePlaintextNegotiation()) {
+      builder.usePlaintext(true);
+    }
+
+    return configureNettyChannel(builder, options, interceptors).build();
+  }
+
 
   /** {@inheritDoc} */
   @Override
