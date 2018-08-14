@@ -490,6 +490,7 @@ public class BigtableSession implements Closeable {
   protected <T extends ManagedChannelBuilder<T>> ManagedChannelBuilder<T> configureNettyChannel(
       ManagedChannelBuilder<T> builder,
       BigtableOptions options, ClientInterceptor ... interceptors) {
+
     return builder
         .idleTimeout(Long.MAX_VALUE, TimeUnit.SECONDS)
         .maxInboundMessageSize(MAX_MESSAGE_SIZE)
@@ -545,7 +546,10 @@ public class BigtableSession implements Closeable {
         .forAddress(host, options.getPort());
 
     if (options.usePlaintextNegotiation()) {
-      builder.usePlaintext(true);
+      // NOTE: usePlaintext(true) is deprecated in newer versions of grpc (1.11.0).
+      //       usePlantxext() is the preferred approach, but won't work with older versions.
+      //       This means that plaintext negotiation can't be used with Beam.
+      builder.usePlaintext();
     }
 
     return configureNettyChannel(builder, options, interceptors).build();
