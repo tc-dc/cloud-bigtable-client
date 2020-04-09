@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.grpc.io;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.OAuth2Credentials;
+import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.config.CredentialFactory;
 import com.google.cloud.bigtable.config.CredentialOptions;
 import com.google.cloud.bigtable.config.CredentialOptions.CredentialType;
@@ -97,6 +98,11 @@ public class CredentialInterceptorCache {
     if (credentials == null) {
       return null;
     }
+
+    if (credentials instanceof ServiceAccountJwtAccessCredentials) {
+      return new ClientAuthInterceptor(credentials, executor);
+    }
+
     Preconditions.checkState(
         credentials instanceof OAuth2Credentials,
         String.format(
