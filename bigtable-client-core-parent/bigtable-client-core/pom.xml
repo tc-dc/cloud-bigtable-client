@@ -20,7 +20,7 @@ limitations under the License.
     <parent>
         <groupId>com.google.cloud.bigtable</groupId>
         <artifactId>bigtable-client-core-parent</artifactId>
-        <version>1.5.0-twttr3</version>
+        <version>1.5.0-twttr4</version>
     </parent>
 
     <artifactId>bigtable-client-core</artifactId>
@@ -148,6 +148,10 @@ limitations under the License.
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-auth</artifactId>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
