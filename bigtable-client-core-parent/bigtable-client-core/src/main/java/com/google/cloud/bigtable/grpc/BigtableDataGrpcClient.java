@@ -19,6 +19,7 @@ import static com.google.cloud.bigtable.grpc.io.GoogleCloudResourcePrefixInterce
 
 import com.google.api.core.ApiClock;
 import com.google.api.core.NanoClock;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.Metadata;
@@ -94,6 +95,11 @@ public class BigtableDataGrpcClient implements BigtableDataClient {
           return mutateRowRequest != null
               && allCellsHaveTimestamps(mutateRowRequest.getMutationsList());
         }
+
+        @Override
+        public boolean test(MutateRowRequest input) {
+          return apply(input);
+        }
       };
 
   /** Constant <code>ARE_RETRYABLE_MUTATIONS</code> */
@@ -110,6 +116,11 @@ public class BigtableDataGrpcClient implements BigtableDataClient {
             }
           }
           return true;
+        }
+
+        @Override
+        public boolean test(MutateRowsRequest input) {
+          return apply(input);
         }
       };
 
@@ -220,6 +231,11 @@ public class BigtableDataGrpcClient implements BigtableDataClient {
         @Override
         public boolean apply(@Nullable T input) {
           return input != null;
+        }
+
+        @Override
+        public boolean test(T input) {
+          return apply(input);
         }
       };
     } else {
@@ -350,7 +366,8 @@ public class BigtableDataGrpcClient implements BigtableDataClient {
 
     return Futures.transform(
         createStreamingListener(request, readRowsAsync, request.getTableName()).getAsyncResult(),
-        ROW_LIST_TRANSFORMER);
+        ROW_LIST_TRANSFORMER,
+        MoreExecutors.directExecutor());
   }
 
   /** {@inheritDoc} */
@@ -362,7 +379,8 @@ public class BigtableDataGrpcClient implements BigtableDataClient {
 
     return Futures.transform(
         createStreamingListener(request, readRowsAsync, request.getTableName()).getAsyncResult(),
-        FLAT_ROW_LIST_TRANSFORMER);
+        FLAT_ROW_LIST_TRANSFORMER,
+        MoreExecutors.directExecutor());
   }
 
   /** {@inheritDoc} */

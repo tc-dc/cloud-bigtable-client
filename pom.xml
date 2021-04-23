@@ -61,7 +61,7 @@ limitations under the License.
         <!-- google-cloud-java related dependency versions -->
         <google-cloud.version>0.54.0-alpha</google-cloud.version>
         <opencensus.version>0.12.3</opencensus.version>
-        <guava.version>20.0</guava.version>
+        <guava.version>30.1.1-jre</guava.version>
 
         <!--
            TODO: This can be removed once google-cloud-clients's versions are updated.
